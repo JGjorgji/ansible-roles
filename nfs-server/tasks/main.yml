@@ -1,0 +1,19 @@
+---
+- name: Install nfs server and python libs
+  yum: name={{ item }} state=present
+  with_items:
+    - libsemanage-python
+    - nfs-utils
+  
+- name: Put in exports
+  template: src=exports.j2 dest=/etc/exports mode="0644"
+  notify: change exports
+
+- name: Open firewall for nfs
+  firewalld: service=nfs permanent=true state=enabled immediate=yes
+
+- name: Enabling sharing of nfs home directories over nfs
+  seboolean: name=use_nfs_home_dirs state=yes persistent=yes
+
+- name: Start and enable the service
+  service: name=nfs-server state=started enabled=yes

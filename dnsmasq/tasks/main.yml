@@ -1,0 +1,27 @@
+---
+- name: Install dnsmasq
+  yum: name=dnsmasq state=present
+  when: ansible_distribution == 'CentOS'
+
+- name: Install dnsmasq
+  apt: name=dnsmasq state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Config file
+  template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.conf
+  notify: restart dnsmasq
+
+- name: Hosts file
+  template: src=dnsmasq.hosts.j2 dest=/etc/dnsmasq.hosts
+  notify: restart dnsmasq
+
+- name: Copy dnsmasq resolvers
+  template: src=dnsmasq.resolv.j2 dest=/etc/dnsmasq.resolv
+  notify: restart dnsmasq
+
+- name: Start and enable the service 
+  service: name=dnsmasq state=started enabled=yes
+
+- name: Allow through ufw
+  ufw: rule=allow name=dns
+  when: ufw_enabled | default(False)

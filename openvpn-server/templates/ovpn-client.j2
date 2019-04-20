@@ -1,0 +1,15 @@
+client
+remote {{ openvpn_remote }}
+topology {{ openvpn_topology }}
+dev tun
+proto udp
+nobind
+resolv-retry infinite
+persist-key
+persist-tun
+verb 3
+remote-cert-tls server
+ns-cert-type server
+key-direction 1
+
+cipher AES-256-CBC

@@ -1,0 +1,50 @@
+---
+- name: Install OpenVPN
+  apt: name=openvpn state=present
+
+- name: Config file
+  template: src=server.conf.j2 dest=/etc/openvpn/server.conf owner=root group=root
+  register: openvpnconfig
+
+- name: Create keys directory
+  file: path=/etc/openvpn/keys state=directory owner=root group=root
+
+- name: Create static route directory
+  file: path=/etc/openvpn/ccd state=directory owner=root group=root
+
+- name: Set up static ip addresses
+  template: src=static-ip.j2 dest=/etc/openvpn/ccd/{{ item.key }}
+  with_dict: '{{ openvpn_static_addresses }}'
+
+- name: Copy keys
+  copy:
+    src: "{{ openvpn_keys_location }}/pki/{{ item }}"
+    dest: "/etc/openvpn/keys/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 'issued/server.crt'
+    - 'private/server.key'
+    - 'ca.crt'
+    - 'dh2048.pem'
+    - 'private/ta.key'
+    - 'crl.pem'
+
+- name: Enable and start the OpenVPN service
+  service: name=openvpn@server enabled=yes state=started
+
+- name: Restart if config file changed
+  service: name=openvpn@server state=restarted
+  when: openvpnconfig.changed
+
+- name: Enable ip forwarding for client to client communication
+  sysctl: name="net.ipv4.ip_forward" value=1 state=present reload=yes
+
+- name: Enable firewall rule
+  ufw: rule=allow port=1194 proto=udp
+  when: ufw_enabled | default(False)
+
+- import_tasks: local_configs.yml 
+  tags:
+    - openvpn_create_configs

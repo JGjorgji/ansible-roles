@@ -1,0 +1,11 @@
+---
+- name: Make ovpn template for use when making client configs
+  local_action: template src=ovpn-client.j2 dest=/tmp/ansible-ovpn-template
+
+- name: Create user config files
+  local_action: command '{{ role_path }}/files/openvpn-make-clientconfig.sh' '{{ item }}'
+  with_items: '{{ openvpn_users }}'
+  environment:
+    EASY_RSA_PATH: '{{ openvpn_keys_location }}'
+    TEMPLATE: '/tmp/ansible-ovpn-template'
+    OUTDIR: '{{ secrets_root }}/ovpn-client-configs'

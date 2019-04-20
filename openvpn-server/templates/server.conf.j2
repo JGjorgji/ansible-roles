@@ -1,0 +1,39 @@
+mode server
+tls-server
+
+# Needed so dhcp allocations work, also sets up the subnet
+ifconfig {{ openvpn_server_ip }} {{ openvpn_subnet_mask }}
+ifconfig-pool {{ openvpn_allocation_start }} {{ openvpn_allocation_end }} {{ openvpn_subnet_mask }}
+
+port 1194
+proto udp
+dev tun
+
+ca {{ openvpn_keys }}/ca.crt
+cert {{ openvpn_keys }}/server.crt
+key {{ openvpn_keys }}/server.key
+dh {{ openvpn_keys }}/dh2048.pem
+tls-auth {{ openvpn_keys }}/ta.key 0
+
+# Needed for client to client routing to work
+topology subnet
+push '"topology {{ openvpn_topology }}"'
+
+client-config-dir ccd
+keepalive 10 120
+
+user nobody
+group nogroup
+
+persist-key
+persist-tun
+
+verb 4
+mute 20
+
+# Use the openvpn server as a dns server
+push "dhcp-option DNS {{ openvpn_server_ip }}"
+
+cipher AES-256-CBC
+
+crl-verify {{ openvpn_keys }}/crl.pem

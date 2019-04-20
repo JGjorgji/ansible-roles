@@ -1,0 +1,25 @@
+---
+# Installs and configures the Rspamd spam filtering system.
+- name: install apt-transport-https
+  apt: name=apt-transport-https state=present
+
+- name: Ensure repository key for Rspamd is in place
+  apt_key: url=https://rspamd.com/apt-stable/gpg.key state=present
+
+- name: Add Rspamd repository
+  apt_repository: repo="deb https://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
+
+- name: Install Rspamd and Redis
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - rspamd
+    - redis-server
+
+- name: Make rspamd log to systemd journal
+  copy: src=etc_rspamd_local.d_logging.inc dest=/etc/rspamd/local.d/ mode="0644"
+
+- name: Start redis
+  service: name=redis-server state=started
+
+- name: Start rspamd systemd listener
+  service: name=rspamd state=started

@@ -1,0 +1,14 @@
+---
+- name: Install ufw
+  apt: name=ufw state=present
+
+- name: Deny everything
+  ufw: policy=deny
+
+- name: Allow ssh
+  ufw: rule=allow port=ssh proto=tcp
+
+- name: Enable ufw
+  ufw: state=enabled
+
+- set_fact: ufw_enabled=True

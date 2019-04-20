@@ -1,0 +1,65 @@
+---
+- name: Add zabbix repo
+  yum: name=http://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm state=present
+
+- name: Install zabbix and selinux tools to fix policy
+  yum: name="{{ item }}" state=present
+  with_items:
+    - 'zabbix-server-pgsql'
+    - 'zabbix-web-pgsql'
+    - 'httpd'
+    - 'policycoreutils-python'
+
+- name: Add selinux zabbix-server modules so zabbix works
+  copy: src="{{ item }}" dest=/tmp/
+  with_fileglob:
+    - 'zabbix_*.pp'
+
+- name: Install policy modules
+  shell: semodule -i /tmp/zabbix_*.pp
+
+- name: Set sebool for httpd and zabbix
+  seboolean: name=httpd_can_connect_zabbix state=yes persistent=yes
+
+- name: Set sebool so the zabbix web interface can connect to the db
+  seboolean: name=httpd_can_network_connect_db state=yes persistent=yes
+
+- name: Disable ipv6 in hosts
+  replace:
+    dest: /etc/hosts
+    regexp: '^(::.*)$'
+    replace: '#\1'
+
+- name: Zabbix config
+  template: src=zabbix_server.conf.j2 dest=/etc/zabbix/zabbix_server.conf mode="0644"
+  register: zabbix_config
+
+- name: Web interface config
+  template: src=zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php mode="0644" owner=apache group=apache
+
+- name: Change httpd config timezone
+  lineinfile:
+    dest: /etc/httpd/conf.d/zabbix.conf
+    regexp: 'php_value date.timezone'
+    line: 'php_value date.timezone {{ zabbix_timezone }}'
+  register: httpd_conf
+
+- name: Restart httpd if config changed
+  service: name=httpd state=restarted
+  when: httpd_conf.changed
+
+- name: Restart zabbix-server if config changed
+  service: name=zabbix-server state=restarted
+  when: zabbix_config.changed
+
+- name: Enable zabbix service and start it
+  service: name=zabbix-server state=started enabled=yes
+
+- name: Start and enable httpd
+  service: name=httpd state=started enabled=yes
+
+- name: Allow http
+  firewalld: port=80/tcp state=enabled permanent=yes immediate=yes
+
+- name: Allow zabbix agent communication port
+  firewalld: port=10051/tcp state=enabled permanent=yes immediate=yes

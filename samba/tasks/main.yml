@@ -1,0 +1,30 @@
+---
+- name: Install samba and library for selinux and ansible
+  yum: name="{{ item }}" state=present
+  with_items:
+    - samba
+    - libsemanage-python
+
+- name: Enable sebool for home sharing
+  seboolean: name=samba_enable_home_dirs state=yes persistent=yes
+
+- name: Setup config file
+  template: src=smb.conf.j2 dest=/etc/samba/smb.conf owner=root group=root mode=0644
+  notify: reload samba
+
+- name: Make samba root
+  file: path="{{ samba_root }}" state=directory mode="{{ samba_global_config.directory_mask }}"
+
+- name: Create the shares folder otherwise it gets permissions from the first share itself
+  file: path="{{ samba_shares_path }}" state=directory mode="{{ samba_global_config.directory_mask }}"
+
+- name: Create samba shares paths
+  # Samba shares must have 0777 permissions otherwise they're not accessible, doesn't impact files within shares
+  file: path="{{ item.value.path }}" state=directory mode=0777 setype=samba_share_t
+  with_dict: "{{ samba_shares }}"
+
+- name: Enable and start samba
+  systemd: name=smb enabled=yes state=started
+
+- name: Enable and start nmb
+  systemd: name=nmb enabled=yes state=started

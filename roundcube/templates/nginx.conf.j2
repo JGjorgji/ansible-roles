@@ -1,0 +1,70 @@
+upstream roundcube-handler {
+    server 127.0.0.1:9001;
+}
+
+server {
+    listen 80;
+
+    server_name {{ ' '.join(roundcube_server_names) }};
+
+    server_tokens off;
+
+    root /var/www/html/;
+
+    access_log  /var/log/nginx/roundcube_access.log;
+    error_log   /var/log/nginx/roundcube_error.log;
+
+    location ^~ /.well-known/acme-challenge/ {
+        allow all;
+        default_type "text/plain";
+    }
+
+    location / {
+        # enforce https
+        return 301 https://$http_host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name {{ ' '.join(roundcube_server_names) }};
+
+    server_tokens off;
+
+    access_log  /var/log/nginx/roundcube_access.log;
+    error_log   /var/log/nginx/roundcube_error.log;
+
+    include snippets/tls.conf;
+    include snippets/headers.conf;
+
+    # This is needed so LE works even when we have a cert since that's the root configured to the script
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/html/;
+        allow all;
+        default_type "text/plain";
+    }
+
+    # Path to the root of your installation
+    root /srv/roundcube/;
+
+    index index.php;
+
+    location ~ ^/(README.md|INSTALL|LICENSE|CHANGELOG|UPGRADING)$ {
+        deny all;
+    }
+
+    location ~ ^/(config|temp|logs)/ {
+        deny all;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+
+    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+    #
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass roundcube-handler;
+    }
+}

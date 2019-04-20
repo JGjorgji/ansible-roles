@@ -1,0 +1,28 @@
+---
+- name: create user
+  user:
+    name: roundcube
+    comment: "roundcube service user"
+
+- name: create directory
+  file:
+    path: /srv/roundcube
+    owner: roundcube
+    group: roundcube
+
+- name: php-fpm config
+  copy:
+    src: php-fpm.conf
+    dest: /etc/php/7.0/fpm/pool.d/roundcube.conf
+  notify: restart php-fpm
+
+- name: enable php-fpm
+  systemd:
+    name: php7.0-fpm
+    enabled: yes
+
+- name: copy nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-enabled/roundcube.conf
+  notify: reload nginx

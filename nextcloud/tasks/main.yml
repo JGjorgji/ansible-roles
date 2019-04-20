@@ -1,0 +1,71 @@
+---
+- name: create user
+  user:
+    name: nextcloud
+    comment: "nextcloud service user"
+
+- name: install deps
+  apt: name="{{ item }}" state=present
+  with_items:
+    - php-fpm
+    - php-ctype
+    - php-dom
+    - php-gd
+    - php-iconv
+    - php-json
+    - php-xml
+    - php-mbstring
+    - php-simplexml
+    - php-zip
+    - php-pgsql
+    - php-curl
+    - php-bz2
+    - php-intl
+    - php-mcrypt
+    - php-imap
+    - php-exif
+    - php-redis
+    - php-imagick
+    - php-apcu
+    - php-smbclient
+    - smbclient
+
+- name: create directory
+  file:
+    path: /srv/nextcloud
+    state: directory
+    owner: nextcloud
+    group: www-data
+
+- name: php-fpm config
+  copy:
+    src: php-fpm.conf
+    dest: /etc/php/7.0/fpm/pool.d/nextcloud.conf
+  notify: restart php-fpm
+
+- name: enable php-fpm
+  systemd:
+    name: php7.0-fpm
+    enabled: yes
+
+- name: copy nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-enabled/nextcloud.conf
+  notify: reload nginx
+
+- name: copy nextcloudcron service
+  copy:
+    src: nextcloudcron.service
+    dest: /etc/systemd/system/
+
+- name: copy nextcloucron timer service
+  copy:
+    src: nextcloudcron.timer
+    dest: /etc/systemd/system/
+
+- name: enable nextcloudcron timer
+  systemd:
+    name: nextcloudcron.timer
+    enabled: yes
+    state: started

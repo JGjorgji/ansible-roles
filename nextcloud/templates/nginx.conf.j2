@@ -1,0 +1,110 @@
+upstream php-handler {
+    server 127.0.0.1:9000;
+}
+
+server {
+    listen 80;
+
+    server_name {{ ' '.join(nextcloud_server_names) }};
+
+    server_tokens off;
+
+    root /var/www/html/;
+
+    location ^~ /.well-known/acme-challenge/ {
+        allow all;
+        default_type "text/plain";
+    }
+
+    location / {
+        # enforce https
+        return 301 https://$http_host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name {{ ' '.join(nextcloud_server_names) }};
+
+    server_tokens off;
+
+    include snippets/tls.conf;
+    include snippets/headers.conf;
+
+    add_header 'Referrer-Policy' 'strict-origin';
+
+    # This is needed so LE works even when we have a cert since that's the root configured to the script
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/html/;
+        allow all;
+        default_type "text/plain";
+    }
+
+    # Path to the root of your installation
+    root /srv/nextcloud/;
+
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+
+    location = /.well-known/carddav {
+        return 301 $scheme://$host/remote.php/dav;
+    }
+    location = /.well-known/caldav {
+        return 301 $scheme://$host/remote.php/dav;
+    }
+
+    # set max upload size
+    client_max_body_size 512M;
+    fastcgi_buffers 64 4K;
+
+    gzip off;
+
+    location / {
+        rewrite ^ /index.php$uri;
+    }
+
+    location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+        deny all;
+    }
+    location ~ ^/(?:\.|autotest|occ|issue|indie|db_|console) {
+        deny all;
+    }
+
+    location ~ ^/(?:index|remote|public|cron|core/ajax/update|status|ocs/v[12]|updater/.+|ocs-provider/.+|core/templates/40[34])\.php(?:$|/) {
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param HTTPS on;
+        #Avoid sending the security headers twice
+        fastcgi_param modHeadersAvailable true;
+        fastcgi_param front_controller_active true;
+        fastcgi_pass php-handler;
+        fastcgi_intercept_errors on;
+        fastcgi_request_buffering off;
+        fastcgi_hide_header X-Powered-By;
+    }
+
+    location ~ ^/(?:updater|ocs-provider)(?:$|/) {
+        try_files $uri/ =404;
+        index index.php;
+    }
+
+    # Adding the cache control header for js and css files
+    # Make sure it is BELOW the PHP block
+    location ~* \.(?:css|js|woff|svg|gif)$ {
+        try_files $uri /index.php$uri$is_args$args;
+        add_header Cache-Control "public, max-age=7200";
+        # Optional: Don't log access to assets
+        access_log off;
+    }
+
+    location ~* \.(?:png|html|ttf|ico|jpg|jpeg)$ {
+        try_files $uri /index.php$uri$is_args$args;
+        # Optional: Don't log access to other assets
+        access_log off;
+    }
+}

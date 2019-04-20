@@ -1,0 +1,11 @@
+---
+- name: Copy config
+  template: src=sshd_config.j2 dest=/etc/ssh/sshd_config mode="0644"
+  register: sshd_config_state
+
+- name: Restart the server
+  service: name=sshd state=restarted
+  when: sshd_config_state.changed
+
+- import_tasks: ssh_ca.yml
+  when: ssh_ca | default(False)

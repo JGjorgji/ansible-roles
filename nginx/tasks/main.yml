@@ -1,0 +1,26 @@
+---
+- block:
+    - name: Install nginx
+      apt: name=nginx state=present
+
+    - name: git for ansible git module
+      apt: name=git state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- block:
+    - name: Install nginx
+      yum: name=nginx state=present
+
+    - name: git for ansible git module
+      yum: name=git state=present
+
+    - name: enable and start the service
+      service: name=nginx state=started enabled=yes
+  when: ansible_distribution == 'CentOS'
+
+- name: Add through firewall
+  ufw: rule=allow port=http proto=tcp
+  when: ufw_enabled | default(False)
+
+- import_tasks: tls.yml
+  when: tls_domains is defined

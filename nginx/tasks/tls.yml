@@ -1,0 +1,26 @@
+---
+- name: Download acme.sh
+  git: repo="https://github.com/Neilpang/acme.sh" dest=/tmp/acme.sh
+
+- name: Install acme.sh
+  shell: ./acme.sh --install
+  args:
+    chdir: /tmp/acme.sh
+    creates: /root/.acme.sh
+
+- name: Issue certs
+  shell: ./acme.sh --issue -d {{ tls_domains | join(' -d ') }} -w {{ webroot }}
+  args:
+    chdir: /root/.acme.sh
+  failed_when: res.rc not in [0,1,2]
+  register: res
+
+- name: Install certs
+  shell: ./acme.sh --installcert -d {{ tls_domains | join(' -d ') }} --keypath /etc/ssl/privkey.pem --fullchainpath /etc/ssl/fullchain.pem --reloadcmd "{{ tls_postcmd }}"
+  args:
+    chdir: /root/.acme.sh
+
+- name: Generate DH key
+  command: openssl dhparam -out /etc/ssl/private/dhparam2048.pem 2048
+  args:
+    creates: /etc/ssl/private/dhparam2048.pem

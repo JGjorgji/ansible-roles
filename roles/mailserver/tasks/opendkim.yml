@@ -2,8 +2,11 @@
 # handy reference: http://stevejenkins.com/blog/2010/09/how-to-get-dkim-domainkeys-identified-mail-working-on-centos-5-5-and-postfix-using-opendkim/
 
 - name: Install OpenDKIM and related packages
-  apt: pkg={{ item }} state=present
-  with_items:
+  apt:
+    pkg: "{{ opendkim_packages }}"
+    state: present
+  vars:
+    opendkim_packages:
     - opendkim
     - opendkim-tools
 

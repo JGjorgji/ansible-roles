@@ -10,8 +10,12 @@
   apt_repository: repo="deb https://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
 
 - name: Install Rspamd and Redis
-  apt: pkg={{ item }} state=present update_cache=yes
-  with_items:
+  apt:
+    pkg: "{{ rspamd_packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    rspamd_packages:
     - rspamd
     - redis-server
 

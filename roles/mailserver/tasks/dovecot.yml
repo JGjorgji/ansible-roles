@@ -1,6 +1,10 @@
 - name: Install Dovecot and related packages
-  apt: pkg={{ item }} update_cache=yes state=present
-  with_items:
+  apt:
+    pkg: "{{ dovecot_packages }}"
+    update_cache: yes
+    state: present
+  vars:
+    dovecot_packages:
     - dovecot-core
     - dovecot-imapd
     - dovecot-lmtpd

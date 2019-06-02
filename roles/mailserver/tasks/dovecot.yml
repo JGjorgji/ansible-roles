@@ -68,3 +68,8 @@
 
 - name: Disable dovecot socket since we're not using it
   service: name=dovecot.socket enabled=no state=stopped
+
+- name: Generate DH param
+  openssl_dhparam:
+    path: /etc/ssl/private/dh2048.pem
+    size: 2048

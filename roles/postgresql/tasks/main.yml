@@ -1,9 +1,12 @@
 ---
-- import_tasks: debian.yml
-  when: ansible_distribution == 'Debian'
-
-- import_tasks: centos.yml
-  when: ansible_distribution == 'CentOS'
+- name: Install postgres
+  apt:
+    name: {{ item }}
+    state: present
+    update_cache: yes
+  with_items:
+    - "postgresql-11"
+    - "python-psycopg2"
 
 - set_fact: hashed_password="{{ [db_admin_password,db_admin_username] | join('') | md5  }}"
 
@@ -17,5 +20,9 @@
   become_user: postgres
 
 - name: Add to firewall
-  firewalld: service=postgresql state=enabled permanent=true immediate=yes
+  firewalld:
+    service: postgresql
+    state: enabled
+    permanent: true
+    immediate: yes
   when: firewalld_enabled | default(False)

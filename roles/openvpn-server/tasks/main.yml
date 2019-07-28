@@ -4,7 +4,7 @@
 
 - name: Config file
   template: src=server.conf.j2 dest=/etc/openvpn/server.conf owner=root group=root
-  register: openvpnconfig
+  notify: restart openvpn server
 
 - name: Create keys directory
   file: path=/etc/openvpn/keys state=directory owner=root group=root
@@ -33,10 +33,6 @@
 
 - name: Enable and start the OpenVPN service
   service: name=openvpn@server enabled=yes state=started
-
-- name: Restart if config file changed
-  service: name=openvpn@server state=restarted
-  when: openvpnconfig.changed
 
 - name: Enable ip forwarding for client to client communication
   sysctl: name="net.ipv4.ip_forward" value=1 state=present reload=yes

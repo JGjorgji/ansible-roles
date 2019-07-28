@@ -1,7 +1,7 @@
 Sets up the environment for nextcloud
 
-Works on:
-* Debian
+Works on:  
+* Debian Buster
 
 
 Variables:  

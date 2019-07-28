@@ -1,6 +1,6 @@
 
-Works on:
-* Debian
+Works on:  
+* Debian Buster
 
 
 Variables:  

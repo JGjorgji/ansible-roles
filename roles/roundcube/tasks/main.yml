@@ -13,12 +13,12 @@
 - name: php-fpm config
   copy:
     src: php-fpm.conf
-    dest: /etc/php/7.0/fpm/pool.d/roundcube.conf
+    dest: /etc/php/7.3/fpm/pool.d/roundcube.conf
   notify: restart php-fpm
 
 - name: enable php-fpm
   systemd:
-    name: php7.0-fpm
+    name: php7.3-fpm
     enabled: yes
 
 - name: copy nginx

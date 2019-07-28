@@ -1,7 +1,7 @@
 ---
 - name: Install postgres
   apt:
-    name: {{ item }}
+    name: "{{ item }}"
     state: present
     update_cache: yes
   with_items:

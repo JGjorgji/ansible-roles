@@ -18,11 +18,3 @@
     encrypted: yes
   become: true
   become_user: postgres
-
-- name: Add to firewall
-  firewalld:
-    service: postgresql
-    state: enabled
-    permanent: true
-    immediate: yes
-  when: firewalld_enabled | default(False)

@@ -13,8 +13,10 @@
   file: path=/etc/openvpn/ccd state=directory owner=root group=root
 
 - name: Set up static ip addresses
-  template: src=static-ip.j2 dest=/etc/openvpn/ccd/{{ item.key }}
-  with_dict: '{{ openvpn_static_addresses }}'
+  template:
+    src: static-ip.j2
+    dest: "/etc/openvpn/ccd/{{ item.key }}"
+  loop: "{{ openvpn_static_addresses | dict2items }}"
 
 - name: Copy keys
   copy:

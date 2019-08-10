@@ -1,4 +1,8 @@
 ifconfig-push {{ item.value }} {{ openvpn_subnet_mask }}
-{% if item.key in openvpn_iroute.keys() %}
-{{ openvpn_iroute[item.key] }}
+{% if openvpn_iroute is defined and item.key in openvpn_iroute.keys() %}
+{% if openvpn_iroute.get(item.key) %}
+{% for route in openvpn_iroute.get(item.key) %}
+{{ route }}
+{% endfor %}
+{% endif %}
 {% endif %}

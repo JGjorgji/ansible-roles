@@ -1,5 +1,0 @@
----
-- name: restart cherrymusic
-  systemd:
-    name: cherrymusic
-    state: restarted

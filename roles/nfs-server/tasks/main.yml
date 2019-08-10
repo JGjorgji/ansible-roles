@@ -1,10 +1,11 @@
 ---
 - name: Install nfs server and python libs
-  yum: name={{ item }} state=present
-  with_items:
+  yum:
+    name:
     - libsemanage-python
     - nfs-utils
-  
+    state: present
+
 - name: Put in exports
   template: src=exports.j2 dest=/etc/exports mode="0644"
   notify: change exports

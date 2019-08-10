@@ -1,7 +1,7 @@
 ---
 - name: Install admin utilities
-  package: name="{{ item }}" state=present
-  with_items:
+  package:
+    name:
     - vim
     - htop
     - iotop
@@ -12,3 +12,4 @@
     - mosh
     - lsof
     - curl
+    state: present

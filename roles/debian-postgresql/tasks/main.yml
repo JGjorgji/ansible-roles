@@ -1,12 +1,12 @@
 ---
-- name: Install postgres
+- name: Install postgres and libraries
   apt:
-    name: "{{ item }}"
+    name:
+      - "postgresql-11"
+      - "python3-psycopg2"
+      - "python-psycopg2"
     state: present
     update_cache: yes
-  with_items:
-    - "postgresql-11"
-    - "python-psycopg2"
 
 - set_fact: hashed_password="{{ [db_admin_password,db_admin_username] | join('') | md5  }}"
 

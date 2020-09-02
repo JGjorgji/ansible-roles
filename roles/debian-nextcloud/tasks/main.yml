@@ -28,6 +28,8 @@
     - php-imagick
     - php-apcu
     - php-smbclient
+    - php-gmp
+    - php-bcmath
     - smbclient
 
 - name: create directory

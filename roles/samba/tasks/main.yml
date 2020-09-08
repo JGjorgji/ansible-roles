@@ -1,9 +1,9 @@
 ---
 - name: Install samba and library for selinux and ansible
-  yum:
+  dnf:
     name:
-    - samba
-    - libsemanage-python
+      - samba
+      - libsemanage-python
     state: present
 
 - name: Enable sebool for home sharing

@@ -5,27 +5,28 @@
     comment: "nextcloud service user"
 
 - name: install deps
-  apt: name="{{ item }}" state=present
-  with_items:
-    - php-fpm
-    - php-gd
-    - php-json
-    - php-xml
-    - php-mbstring
-    - php-zip
-    - php-pgsql
-    - php-curl
-    - php-bz2
-    - php-intl
-    - php-mcrypt
-    - php-imap
-    - php-redis
-    - php-imagick
-    - php-apcu
-    - php-smbclient
-    - php-gmp
-    - php-bcmath
-    - smbclient
+  apt:
+    state: present
+    name:
+      - php-fpm
+      - php-gd
+      - php-json
+      - php-xml
+      - php-mbstring
+      - php-zip
+      - php-pgsql
+      - php-curl
+      - php-bz2
+      - php-intl
+      - php-mcrypt
+      - php-imap
+      - php-redis
+      - php-imagick
+      - php-apcu
+      - php-smbclient
+      - php-gmp
+      - php-bcmath
+      - smbclient
 
 - name: create directory
   file:

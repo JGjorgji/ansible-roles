@@ -63,7 +63,7 @@ server {
     gzip off;
 
     location / {
-        rewrite ^ /index.php$uri;
+        rewrite ^ /index.php;
     }
 
     location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {

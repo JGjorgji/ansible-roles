@@ -8,14 +8,10 @@
   apt: name="{{ item }}" state=present
   with_items:
     - php-fpm
-    - php-ctype
-    - php-dom
     - php-gd
-    - php-iconv
     - php-json
     - php-xml
     - php-mbstring
-    - php-simplexml
     - php-zip
     - php-pgsql
     - php-curl
@@ -23,7 +19,6 @@
     - php-intl
     - php-mcrypt
     - php-imap
-    - php-exif
     - php-redis
     - php-imagick
     - php-apcu

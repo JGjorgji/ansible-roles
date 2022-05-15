@@ -1,0 +1,26 @@
+---
+- name: Create compose dir
+  file:
+    path: /srv/docker/keycloak
+    state: directory
+
+- name: Copy compose file
+  copy:
+    src: docker-compose.yml
+    dest: /srv/docker/keycloak/docker-compose.yml
+
+- name: Template vars env file
+  template:
+    src: env
+    dest: /srv/docker/keycloak/.env
+
+- name: Create container
+  command: docker compose up -d
+  args:
+    chdir: /srv/docker/keycloak
+
+- name: Nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-enabled/keycloak.conf
+  notify: reload nginx

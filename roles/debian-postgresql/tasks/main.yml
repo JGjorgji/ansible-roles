@@ -2,9 +2,9 @@
 - name: Install postgres and libraries
   apt:
     name:
-      - "postgresql-11"
+      - "postgresql"
+      - "postgresql-common"
       - "python3-psycopg2"
-      - "python-psycopg2"
     state: present
     update_cache: yes
 

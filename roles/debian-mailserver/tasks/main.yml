@@ -1,4 +1,9 @@
 ---
+- name: Generate DH key
+  command: openssl dhparam -out /etc/ssl/private/dhparam2048.pem 2048
+  args:
+    creates: /etc/ssl/private/dhparam2048.pem
+
 - import_tasks: postfix.yml
   tags: [postfix]
 

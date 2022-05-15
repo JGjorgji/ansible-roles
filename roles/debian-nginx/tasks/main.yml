@@ -1,0 +1,15 @@
+---
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Copy tls config snippets
+  copy:
+    src: tls.conf
+    dest: /etc/nginx/snippets/tls.conf
+
+- name: Copy header config snippets
+  copy:
+    src: headers.conf
+    dest: /etc/nginx/snippets/headers.conf

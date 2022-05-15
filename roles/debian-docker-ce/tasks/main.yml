@@ -1,0 +1,34 @@
+---
+- name: Install repo adding deps
+  apt:
+    pkg:
+      - apt-transport-https
+      - lsb-release
+      - ca-certificates
+      - curl
+      - gnupg
+
+- name: Download key for docker repo
+  get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /tmp/docker-archive-keyring.gpg
+
+- name: Remove existing key in case it has changed
+  file:
+    path: /usr/share/keyrings/docker-archive-keyring.gpg
+    state: absent
+
+- name: De-armor gpg key and put it in place
+  command: gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg /tmp/docker-archive-keyring.gpg
+
+- name: Add docker repo
+  apt_repository:
+    repo: deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Install docker
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose-plugin

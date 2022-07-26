@@ -1,11 +1,7 @@
-upstream php-handler {
-    server 127.0.0.1:9000;
-}
-
 server {
     listen 80;
 
-    server_name {{ ' '.join(nextcloud_server_names) }};
+    server_name {{ nextcloud_server_name }};
 
     server_tokens off;
 
@@ -24,12 +20,15 @@ server {
 
 server {
     listen 443 ssl http2;
-    server_name {{ ' '.join(nextcloud_server_names) }};
+    server_name {{ nextcloud_server_name }};
 
     server_tokens off;
 
     include snippets/tls.conf;
     include snippets/headers.conf;
+
+    ssl_certificate /etc/letsencrypt/live/{{ tls_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ tls_domain }}/privkey.pem;
 
     add_header 'Referrer-Policy' 'strict-origin';
 
@@ -41,7 +40,7 @@ server {
     }
 
     # Path to the root of your installation
-    root /srv/nextcloud/;
+    root /srv/{{ nextcloud_username }}/;
 
     location = /robots.txt {
         allow all;
@@ -83,7 +82,7 @@ server {
         #Avoid sending the security headers twice
         fastcgi_param modHeadersAvailable true;
         fastcgi_param front_controller_active true;
-        fastcgi_pass php-handler;
+        fastcgi_pass unix:/var/run/php/{{ nextcloud_username }}.sock;
         fastcgi_intercept_errors on;
         fastcgi_request_buffering off;
         fastcgi_hide_header X-Powered-By;

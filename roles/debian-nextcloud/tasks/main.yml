@@ -1,69 +1,93 @@
 ---
-- name: create user
+- name: create user for nextcloud {{ nextcloud_username }}
   user:
-    name: nextcloud
+    name: "{{ nextcloud_username }}"
     comment: "nextcloud service user"
 
-- name: install deps
+- name: install php deps
   apt:
     state: present
-    name:
-      - php-fpm
-      - php-gd
-      - php-json
-      - php-xml
-      - php-mbstring
-      - php-zip
-      - php-pgsql
-      - php-curl
-      - php-bz2
-      - php-intl
-      - php-mcrypt
-      - php-imap
-      - php-redis
-      - php-imagick
-      - php-apcu
-      - php-smbclient
-      - php-gmp
-      - php-bcmath
-      - smbclient
+    pkg:
+      - php{{ php_version }}-fpm
+      - php{{ php_version }}-gd
+      - php{{ php_version }}-xml
+      - php{{ php_version }}-mbstring
+      - php{{ php_version }}-zip
+      - php{{ php_version }}-pgsql
+      - php{{ php_version }}-curl
+      - php{{ php_version }}-bz2
+      - php{{ php_version }}-intl
+      - php{{ php_version }}-mcrypt
+      - php{{ php_version }}-imap
+      - php{{ php_version }}-redis
+      - php{{ php_version }}-imagick
+      - php{{ php_version }}-apcu
+      - php{{ php_version }}-smbclient
+      - php{{ php_version }}-gmp
+      - php{{ php_version }}-bcmath
+      - php{{ php_version }}-apcu
+
+- name: install redis
+  apt:
+    pkg: redis-server
+    state: present
 
 - name: create directory
   file:
-    path: /srv/nextcloud
+    path: /srv/{{ nextcloud_username }}
     state: directory
-    owner: nextcloud
+    owner: "{{ nextcloud_username }}"
     group: www-data
+    mode: "0770"
 
 - name: php-fpm config
-  copy:
-    src: php-fpm.conf
-    dest: /etc/php/7.3/fpm/pool.d/nextcloud.conf
+  template:
+    src: php-fpm.conf.j2
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/{{ nextcloud_username }}.conf
   notify: restart php-fpm
 
 - name: enable php-fpm
   systemd:
-    name: php7.3-fpm
+    name: php{{ php_version }}-fpm
     enabled: yes
 
 - name: copy nginx
   template:
     src: nginx.conf.j2
-    dest: /etc/nginx/sites-enabled/nextcloud.conf
+    dest: /etc/nginx/sites-enabled/{{ nextcloud_server_name }}.conf
   notify: reload nginx
 
 - name: copy nextcloudcron service
-  copy:
-    src: nextcloudcron.service
-    dest: /etc/systemd/system/
+  template:
+    src: cron.service.j2
+    dest: /etc/systemd/system/cron-{{ nextcloud_username }}.service
 
-- name: copy nextcloucron timer service
-  copy:
-    src: nextcloudcron.timer
-    dest: /etc/systemd/system/
+- name: copy nextcloudcron timer service
+  template:
+    src: cron.timer.j2
+    dest: /etc/systemd/system/cron-{{ nextcloud_username }}.timer
 
 - name: enable nextcloudcron timer
   systemd:
-    name: nextcloudcron.timer
+    name: cron-{{ nextcloud_username }}.timer
     enabled: yes
     state: started
+
+- name: set hashed password
+  set_fact: hashed_password="{{ [nextcloud_db_password,nextcloud_username] | join('') | md5  }}"
+
+- name: create db
+  postgresql_db:
+    name: "{{ nextcloud_username }}"
+    state: present
+  become: true
+  become_user: postgres
+
+- name: create db user
+  postgresql_user:
+    db: "{{ nextcloud_username }}"
+    name: "{{ nextcloud_username }}"
+    password: "{{ ['md5',hashed_password] | join('') }}"
+    encrypted: true
+  become: true
+  become_user: postgres

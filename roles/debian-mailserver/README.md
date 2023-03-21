@@ -5,6 +5,6 @@ This is a role taken from the sovereign ansible playbook, it's been changed in c
 
 Notable changes include:
 * Users are not added with the role since i didn't like dropping the database every time i want to make a change so i made a quick python app and removed it from the role.
-* No solr for now
+* No solr
 * SSL/TLS is moved to a separate role
 * OpenDKIM made to work with multiple domains automatically

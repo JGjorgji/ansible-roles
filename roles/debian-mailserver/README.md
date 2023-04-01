@@ -1,5 +1,4 @@
-ansible-mailserver
-==================
+### ansible-mailserver
 
 This is a role taken from the sovereign ansible playbook, it's been changed in cases where i didn't like their aproach.
 
@@ -8,3 +7,11 @@ Notable changes include:
 * No solr
 * SSL/TLS is moved to a separate role
 * OpenDKIM made to work with multiple domains automatically
+
+
+### Ports needed
+25 - postfix/not really needed
+465 - postfix/smtps
+587 - postfix/submission
+993 - dovecot/imaps
+995 - dovecot/pop3s

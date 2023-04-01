@@ -55,13 +55,6 @@
     state: present
     reload: yes
 
-- name: Enable firewall rule
-  ufw:
-    rule: allow
-    port: 1194
-    proto: udp
-  when: ufw_enabled | default(False)
-
 - import_tasks: local_configs.yml
   tags:
     - openvpn_create_configs

@@ -1,5 +1,4 @@
-ansible-openvpn
-===============
+### ansible-openvpn
 
 Currently works on Debian, should work on other systems with minor modifications.
 
@@ -28,3 +27,6 @@ Tags:
 ```
 openvpn_create_configs - run the local scripts to create configs
 ```
+
+### Ports needed
+1194/UDP

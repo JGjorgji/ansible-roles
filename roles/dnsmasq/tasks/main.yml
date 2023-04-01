@@ -34,9 +34,3 @@
     name: dnsmasq
     state: started
     enabled: yes
-
-- name: Allow through ufw
-  ufw:
-    rule: allow
-    name: dns
-  when: ufw_enabled | default(False)

@@ -25,12 +25,19 @@ server {
     server_tokens off;
 
     include snippets/tls.conf;
-    include snippets/headers.conf;
 
     ssl_certificate /etc/letsencrypt/live/{{ tls_domain }}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/{{ tls_domain }}/privkey.pem;
 
-    add_header 'Referrer-Policy' 'strict-origin';
+    # HTTP response headers borrowed from Nextcloud `.htaccess`
+    add_header Referrer-Policy                   "no-referrer"       always;
+    add_header X-Content-Type-Options            "nosniff"           always;
+    add_header X-Download-Options                "noopen"            always;
+    add_header X-Frame-Options                   "SAMEORIGIN"        always;
+    add_header X-Permitted-Cross-Domain-Policies "none"              always;
+    add_header X-Robots-Tag                      "noindex, nofollow" always;
+    add_header X-XSS-Protection                  "1; mode=block"     always;
+    add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;";
 
     # This is needed so LE works even when we have a cert since that's the root configured to the script
     location ^~ /.well-known/acme-challenge/ {

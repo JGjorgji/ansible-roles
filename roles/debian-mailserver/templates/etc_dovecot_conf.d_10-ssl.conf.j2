@@ -12,8 +12,8 @@ ssl = required
 # dropping root privileges, so keep the key file unreadable by anyone but
 # root. Included doc/mkcert.sh can be used to easily generate self-signed
 # certificate, just make sure to update the domains in dovecot-openssl.cnf
-ssl_cert = </etc/ssl/fullchain.pem
-ssl_key = </etc/ssl/privkey.pem
+ssl_cert = <{{ cert_path }}/fullchain.pem
+ssl_key = <{{ cert_path}}/privkey.pem
 
 # Minimum SSL protocol version to use. Potentially recognized values are SSLv3,
 # TLSv1, TLSv1.1, and TLSv1.2, depending on the OpenSSL version used.

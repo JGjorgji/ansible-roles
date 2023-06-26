@@ -17,15 +17,6 @@
   shell: PGPASSWORD="{{ mail_db_password }}" psql -U "{{ mail_db_username }}" -d "{{ mail_db_database }}" -h localhost -c 'SELECT array_to_json(array_agg(virtual_domains)) FROM virtual_domains;' -P "footer=off" | tail -n +3
   register: domain_rows_json
 
-- name: DB table is empty
-  shell: echo {}
-  register: domain_rows_json_alt
-  when: not domain_rows_json.stdout
-
-- name: Set the rows as a variable
-  set_fact: mail_virtual_domains="{{ domain_rows_json_alt.stdout | from_json }}"
-  when: not domain_rows_json.stdout
-
 - name: Set the rows as a variable
   set_fact: mail_virtual_domains="{{ domain_rows_json.stdout | from_json }}"
   when: domain_rows_json.stdout
@@ -33,11 +24,13 @@
 - name: Create OpenDKIM key directories
   file: state=directory path=/etc/opendkim/keys/{{ item.name }} group=opendkim owner=opendkim
   with_items: "{{ mail_virtual_domains }}"
+  when: mail_virtual_domains is defined
 
 - name: Generate OpenDKIM keys
   command: opendkim-genkey -r -d {{ item.name }} -D /etc/opendkim/keys/{{ item.name }}/ creates=/etc/opendkim/keys/{{ item.name }}/default.private
   with_items: "{{ mail_virtual_domains }}"
   notify: restart opendkim
+  when: mail_virtual_domains is defined
 
 - name: Put opendkim.conf into place
   copy: src=etc_opendkim.conf dest=/etc/opendkim.conf owner=opendkim group=opendkim
@@ -54,6 +47,7 @@
   notify:
     - restart opendkim
     - restart postfix
+  when: mail_virtual_domains is defined
 
 - name: Set OpenDKIM config directory permissions
   file: state=directory path=/etc/opendkim

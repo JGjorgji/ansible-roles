@@ -38,7 +38,7 @@
     state: directory
     owner: "{{ nextcloud_username }}"
     group: www-data
-    mode: "0770"
+    mode: "0750"
 
 - name: php-fpm config
   template:

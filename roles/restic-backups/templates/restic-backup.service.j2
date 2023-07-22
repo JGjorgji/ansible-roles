@@ -1,0 +1,10 @@
+[Unit]
+Description=Restic backup
+
+[Service]
+Type=oneshot
+User=restic
+Environment=RESTIC_REPOSITORY={{ repo }}
+Environment=RESTIC_PASSWORD={{ repo_password }}
+ExecStart=restic backup --verbose --one-file-system --tag {{ tag }} {{ backup_path }}
+ExecStartPost=restic forget --verbose --tag {{ tag }} --group-by "paths,tags" --keep-daily {{ retention_days }} --keep-weekly {{ retention_weeks }} --keep-monthly {{ retention_months }} --keep-yearly {{ retention_years }}

@@ -1,3 +1,0 @@
----
-- name: change exports
-  command: exportfs -ra

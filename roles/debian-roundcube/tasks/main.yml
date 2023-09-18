@@ -2,7 +2,7 @@
 - name: create user
   user:
     name: roundcube
-    comment: "roundcube service user"
+    comment: roundcube service user
 
 - name: create directory
   file:
@@ -19,7 +19,7 @@
 - name: enable php-fpm
   systemd:
     name: php7.3-fpm
-    enabled: yes
+    enabled: true
 
 - name: copy nginx
   template:

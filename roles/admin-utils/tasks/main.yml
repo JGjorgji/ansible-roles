@@ -2,14 +2,14 @@
 - name: Install admin utilities
   package:
     name:
-    - vim
-    - htop
-    - iotop
-    - iftop
-    - tmux
-    - rsync
-    - wget
-    - mosh
-    - lsof
-    - curl
+      - vim
+      - htop
+      - iotop
+      - iftop
+      - tmux
+      - rsync
+      - wget
+      - mosh
+      - lsof
+      - curl
     state: present

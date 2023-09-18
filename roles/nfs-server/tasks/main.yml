@@ -2,8 +2,8 @@
 - name: Install nfs server and python libs
   yum:
     name:
-    - libsemanage-python
-    - nfs-utils
+      - libsemanage-python
+      - nfs-utils
     state: present
 
 - name: Put in exports

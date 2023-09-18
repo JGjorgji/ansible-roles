@@ -13,11 +13,11 @@
   apt:
     pkg: "{{ rspamd_packages }}"
     state: present
-    update_cache: yes
+    update_cache: true
   vars:
     rspamd_packages:
-    - rspamd
-    - redis-server
+      - rspamd
+      - redis-server
 
 - name: Make rspamd log to systemd journal
   copy: src=etc_rspamd_local.d_logging.inc dest=/etc/rspamd/local.d/ mode="0644"

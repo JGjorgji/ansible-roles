@@ -33,4 +33,4 @@
   systemd:
     name: dnsmasq
     state: started
-    enabled: yes
+    enabled: true

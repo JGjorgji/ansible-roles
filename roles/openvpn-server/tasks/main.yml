@@ -29,31 +29,31 @@
 - name: Set up static ip addresses
   template:
     src: static-ip.j2
-    dest: "/etc/openvpn/ccd/{{ item.key }}"
+    dest: /etc/openvpn/ccd/{{ item.key }}
   loop: "{{ openvpn_static_addresses | dict2items }}"
 
 - name: Copy keys
   copy:
     src: "{{ openvpn_keys_location }}/pki/{{ item }}"
-    dest: "/etc/openvpn/keys/{{ item | basename }}"
+    dest: /etc/openvpn/keys/{{ item | basename }}
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   with_items:
-    - 'issued/server.crt'
-    - 'private/server.key'
-    - 'ca.crt'
-    - 'dh2048.pem'
-    - 'private/ta.key'
-    - 'crl.pem'
+    - issued/server.crt
+    - private/server.key
+    - ca.crt
+    - dh2048.pem
+    - private/ta.key
+    - crl.pem
   notify: restart openvpn server
 
 - name: Enable ip forwarding for client to client communication
   sysctl:
-    name: "net.ipv4.ip_forward"
+    name: net.ipv4.ip_forward
     value: 1
     state: present
-    reload: yes
+    reload: true
 
 - import_tasks: local_configs.yml
   tags:

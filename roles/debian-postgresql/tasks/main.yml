@@ -2,11 +2,11 @@
 - name: Install postgres and libraries
   apt:
     name:
-      - "postgresql"
-      - "postgresql-common"
-      - "python3-psycopg2"
+      - postgresql
+      - postgresql-common
+      - python3-psycopg2
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Set hashed password fact
   set_fact: hashed_password="{{ [db_admin_password,db_admin_username] | join('') | md5  }}"
@@ -16,6 +16,6 @@
     db: postgres
     name: postgres
     password: "{{ ['md5',hashed_password] | join('') }}"
-    encrypted: yes
+    encrypted: true
   become: true
   become_user: postgres

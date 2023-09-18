@@ -7,14 +7,15 @@
     state: present
   vars:
     opendkim_packages:
-    - opendkim
-    - opendkim-tools
+      - opendkim
+      - opendkim-tools
 
 - name: Create OpenDKIM config directory
   file: state=directory path=/etc/opendkim group=opendkim owner=opendkim
 
 - name: Get virtual domains defined
-  shell: PGPASSWORD="{{ mail_db_password }}" psql -U "{{ mail_db_username }}" -d "{{ mail_db_database }}" -h localhost -c 'SELECT array_to_json(array_agg(virtual_domains)) FROM virtual_domains;' -P "footer=off" | tail -n +3
+  shell: PGPASSWORD="{{ mail_db_password }}" psql -U "{{ mail_db_username }}" -d "{{ mail_db_database }}" -h localhost -c 'SELECT array_to_json(array_agg(virtual_domains))
+    FROM virtual_domains;' -P "footer=off" | tail -n +3
   register: domain_rows_json
 
 - name: Set the rows as a variable
@@ -50,8 +51,7 @@
   when: mail_virtual_domains is defined
 
 - name: Set OpenDKIM config directory permissions
-  file: state=directory path=/etc/opendkim
-          group=opendkim owner=opendkim mode=0700 recurse=yes
+  file: state=directory path=/etc/opendkim group=opendkim owner=opendkim mode=0700 recurse=yes
   notify:
     - restart opendkim
     - restart postfix

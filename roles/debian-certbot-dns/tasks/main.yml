@@ -22,6 +22,7 @@
     mode: "0600"
 
 - name: Generate certs for "{{ cert_toplevel_domain }}"
-  command: certbot certonly --non-interactive --agree-tos --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/{{ cert_toplevel_domain }}.ini -m {{ certbot_email }} -d {{ cert_domains | join(' -d ') }}
+  command: certbot certonly --non-interactive --agree-tos --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/{{ cert_toplevel_domain }}.ini -m {{ certbot_email
+    }} -d {{ cert_domains | join(' -d ') }}
   args:
     creates: /etc/letsencrypt/renewal/{{ cert_toplevel_domain }}.conf

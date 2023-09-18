@@ -1,4 +1,5 @@
-version: '3'
+---
+version: "3"
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:21.1
@@ -6,7 +7,7 @@ services:
     network_mode: host
     command:
       - start
-      - '--auto-build'
+      - --auto-build
     environment:
       - KC_DB=postgres
       - KC_FEATURES=token-exchange
@@ -17,4 +18,3 @@ services:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN=admin
     restart: unless-stopped
-

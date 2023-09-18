@@ -2,7 +2,7 @@
 - name: create user for nextcloud {{ nextcloud_username }}
   user:
     name: "{{ nextcloud_username }}"
-    comment: "nextcloud service user"
+    comment: nextcloud service user
 
 - name: install php deps
   apt:
@@ -49,7 +49,7 @@
 - name: enable php-fpm
   systemd:
     name: php{{ php_version }}-fpm
-    enabled: yes
+    enabled: true
 
 - name: copy nginx
   template:
@@ -70,7 +70,7 @@
 - name: enable nextcloudcron timer
   systemd:
     name: cron-{{ nextcloud_username }}.timer
-    enabled: yes
+    enabled: true
     state: started
 
 - name: set hashed password

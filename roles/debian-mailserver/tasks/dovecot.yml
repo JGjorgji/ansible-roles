@@ -1,16 +1,17 @@
+---
 - name: Install Dovecot and related packages
   apt:
     pkg: "{{ dovecot_packages }}"
-    update_cache: yes
+    update_cache: true
     state: present
   vars:
     dovecot_packages:
-    - dovecot-core
-    - dovecot-imapd
-    - dovecot-lmtpd
-    - dovecot-managesieved
-    - dovecot-pgsql
-    - dovecot-pop3d
+      - dovecot-core
+      - dovecot-imapd
+      - dovecot-lmtpd
+      - dovecot-managesieved
+      - dovecot-pgsql
+      - dovecot-pop3d
 
 - name: Create vmail group
   group: name=vmail state=present gid=5000
@@ -54,8 +55,7 @@
   notify: restart dovecot
 
 - name: Ensure correct permissions on Dovecot config directory
-  file: state=directory path=/etc/dovecot
-          group=dovecot owner=vmail mode=0770 recurse=yes
+  file: state=directory path=/etc/dovecot group=dovecot owner=vmail mode=0770 recurse=yes
   notify: restart dovecot
 
 - name: Disable dovecot socket since we're not using it

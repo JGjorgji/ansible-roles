@@ -8,20 +8,21 @@
   fetch:
     src: /etc/ssh/ssh_host_rsa_key.pub
     dest: "{{ secrets_root }}/tmp/{{ inventory_hostname }}"
-    flat: yes
-    validate_checksum: yes
+    flat: true
+    validate_checksum: true
 
 - name: Sign server key
-  local_action: command ssh-keygen -s "{{ secrets_root }}/ssh_ca/server_ssh_ca" -h -n "{{ ','.join(ssh_ca_server_hostnames) }}" -I "{{ inventory_hostname }}" "{{ secrets_root }}/tmp/{{ inventory_hostname }}"   
+  local_action: command ssh-keygen -s "{{ secrets_root }}/ssh_ca/server_ssh_ca" -h -n "{{ ','.join(ssh_ca_server_hostnames) }}" -I "{{ inventory_hostname }}" "{{
+    secrets_root }}/tmp/{{ inventory_hostname }}"
 
 - name: Copy host certificate back to server
   copy:
     src: "{{ secrets_root }}/tmp/{{ inventory_hostname }}-cert.pub"
     dest: /etc/ssh/ssh_host_rsa_key-cert.pub
-    mode: 0644
+    mode: "0644"
 
 - name: Copy users CA pubkey to the server
   copy:
     src: "{{ secrets_root }}/ssh_ca/users_ssh_ca.pub"
     dest: /etc/ssh/users_ssh_ca.pub
-    mode: 0644
+    mode: "0644"

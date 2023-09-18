@@ -1,0 +1,31 @@
+---
+- name: Download restic
+  get_url:
+    url: https://github.com/restic/restic/releases/download/v0.16.0/restic_0.16.0_linux_amd64.bz2
+    dest: /tmp/restic.bz2
+    checksum: sha256:492387572bb2c4de904fa400636e05492e7200b331335743d46f2f2874150162
+
+- name: Decompress restic
+  command:
+    cmd: bunzip2 /tmp/restic.bz2
+    creates: /tmp/restic
+
+- name: Install restic
+  copy:
+    remote_src: true
+    src: /tmp/restic
+    dest: /usr/local/bin/restic
+    mode: "0755"
+
+- name: Set capabilities
+  capabilities:
+    path: /usr/local/bin/restic
+    capability: cap_dac_read_search=+ep
+    state: present
+
+- name: Add restic user
+  user:
+    name: restic
+    state: present
+    shell: /sbin/nologin
+    system: true

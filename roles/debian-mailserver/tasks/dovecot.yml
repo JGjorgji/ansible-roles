@@ -65,3 +65,9 @@
   openssl_dhparam:
     path: /etc/ssl/private/dh2048.pem
     size: 2048
+
+- name: Allow dovecot to access the paths it needs due to systemd protections
+  copy:
+    src: etc_systemd_dovecot_override.conf
+    dest: /etc/systemd/system/dovecot.service.d/override.conf
+  notify: restart dovecot

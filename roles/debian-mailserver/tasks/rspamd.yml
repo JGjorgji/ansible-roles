@@ -3,11 +3,15 @@
 - name: install apt-transport-https
   apt: name=apt-transport-https state=present
 
-- name: Ensure repository key for Rspamd is in place
-  apt_key: url=https://rspamd.com/apt-stable/gpg.key state=present
+- name: Add rspamd GPG key
+  get_url:
+    url: https://rspamd.com/apt-stable/gpg.key
+    dest: /etc/apt/keyrings/rspamd.asc
+    mode: '0644'
+    force: true
 
 - name: Add Rspamd repository
-  apt_repository: repo="deb https://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
+  apt_repository: repo="deb [signed-by=/etc/apt/keyrings/rspamd.gpg] https://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
 
 - name: Install Rspamd and Redis
   apt:

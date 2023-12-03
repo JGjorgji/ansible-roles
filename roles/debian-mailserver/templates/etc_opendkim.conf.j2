@@ -16,3 +16,4 @@ SyslogSuccess           Yes
 TemporaryDirectory      /var/tmp
 UMask                   022
 UserID                  opendkim:opendkim
+Nameservers             {{ ansible_dns.nameservers | join(',') }}

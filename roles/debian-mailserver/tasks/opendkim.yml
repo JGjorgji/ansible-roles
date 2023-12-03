@@ -33,8 +33,8 @@
   notify: restart opendkim
   when: mail_virtual_domains is defined
 
-- name: Put opendkim.conf into place
-  copy: src=etc_opendkim.conf dest=/etc/opendkim.conf owner=opendkim group=opendkim
+- name: Template opendkim.conf
+  template: src=etc_opendkim.conf.j2 dest=/etc/opendkim.conf owner=opendkim group=opendkim
   notify:
     - restart opendkim
     - restart postfix

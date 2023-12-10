@@ -18,11 +18,9 @@
       - php{{ php_version }}-bz2
       - php{{ php_version }}-intl
       - php{{ php_version }}-mcrypt
-      - php{{ php_version }}-imap
       - php{{ php_version }}-redis
       - php{{ php_version }}-imagick
       - php{{ php_version }}-apcu
-      - php{{ php_version }}-smbclient
       - php{{ php_version }}-gmp
       - php{{ php_version }}-bcmath
       - php{{ php_version }}-apcu
@@ -40,9 +38,9 @@
     group: www-data
     mode: "0750"
 
-- name: php-fpm config
+- name: php-fpm pool config
   template:
-    src: php-fpm.conf.j2
+    src: pool.conf.j2
     dest: /etc/php/{{ php_version }}/fpm/pool.d/{{ nextcloud_username }}.conf
   notify: restart php-fpm
 
@@ -73,21 +71,17 @@
     enabled: true
     state: started
 
-- name: set hashed password
-  set_fact: hashed_password="{{ [nextcloud_db_password,nextcloud_username] | join('') | md5  }}"
-
 - name: create db
-  postgresql_db:
+  community.postgresql.postgresql_db:
     name: "{{ nextcloud_username }}"
     state: present
   become: true
   become_user: postgres
 
 - name: create db user
-  postgresql_user:
+  community.postgresql.postgresql_user:
     db: "{{ nextcloud_username }}"
     name: "{{ nextcloud_username }}"
-    password: "{{ ['md5',hashed_password] | join('') }}"
-    encrypted: true
+    password: "{{ nextcloud_db_password }}"
   become: true
   become_user: postgres
